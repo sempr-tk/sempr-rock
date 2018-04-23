@@ -1,7 +1,4 @@
-rock_library(sempr
-    SOURCES Dummy.cpp
-    HEADERS Dummy.hpp)
-
-rock_executable(sempr_bin Main.cpp
-    DEPS sempr)
-
+rock_library(sempr_rock
+    SOURCES ObjectMessages.cpp
+    HEADERS ObjectMessages.hpp
+    DEPS_PKGCONFIG base-types)
