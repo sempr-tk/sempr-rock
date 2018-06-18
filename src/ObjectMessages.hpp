@@ -75,15 +75,34 @@ namespace sempr_rock {
         The ObjectAssertion represents a semantic annotation that is bound to an object. This is
         used by the environment representation to add additional properties to object instances:
         Given an id, a key and a value (all as strings), it will add a triple:
-            (<object_id> <sempr:key> value)
+            (<sempr:object_id> <sempr:key> value)
         Where value will be inserted verbatim to allow you to reference literals as well as
-        resources.
+        resources. If you want to add a property with a different namespace, e.g. rdf:type etc,
+        use the baseURI. It will be used for the key only, so setting the baseURI to
+        "http://foo.bar/" will result in (<sempr:object_id> <http://foo.bar/key> value).
     */
     struct ObjectAssertion
     {
         std::string objectId;
+        std::string baseURI;
         std::string key;
         std::string value;
+    };
+
+
+    /**
+        This struct is used to communicate plain triples between components. It can e.g. be used
+        to allow the input of triples to be stored in a central place of the environment
+        representation.
+
+        It is assumed that the subject, predicate and object variables are valid resources or
+        literals.
+    */
+    struct Triple
+    {
+        std::string subject_;
+        std::string predicate_;
+        std::string object_; // "object" clashes with keyword "Object" -- wtf...
     };
 
 } /* sempr */
