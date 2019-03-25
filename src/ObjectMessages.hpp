@@ -7,6 +7,7 @@
 #include <utility>
 
 #include <base/Pose.hpp>
+#include <base/Eigen.hpp>
 
 /**
     This file introduces messages that are used to communicate with the environment representation
@@ -103,6 +104,19 @@ namespace sempr_rock {
         std::string subject_;
         std::string predicate_;
         std::string object_; // "object" clashes with keyword "Object" -- wtf...
+    };
+
+
+    /**
+        Used for visualization purposes, to be published by the sempr environment representation.
+        Represents an object with an id, a type and a pose.
+    */
+    struct SpatialObject
+    {
+        std::string id;
+        std::string type;
+        base::Vector3d position;
+        base::Quaterniond orientation;
     };
 
 } /* sempr */
