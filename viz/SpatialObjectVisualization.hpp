@@ -9,11 +9,13 @@
 
 #include <unordered_map>
 #include <iostream>
+#include <vector>
 
 namespace vizkit3d
 {
     class SpatialObjectVisualization
-        : public vizkit3d::Vizkit3DPlugin<sempr_rock::SpatialObject>
+        : public vizkit3d::Vizkit3DPlugin<sempr_rock::SpatialObject>,
+          public vizkit3d::VizPluginAddType<std::vector<sempr_rock::SpatialObject>>
         , boost::noncopyable
     {
     Q_OBJECT
@@ -23,7 +25,11 @@ namespace vizkit3d
 
     Q_INVOKABLE void updateData(sempr_rock::SpatialObject const &sample)
     {
-        std::cout << "updateData at base class" << std::endl;
+        vizkit3d::Vizkit3DPlugin<sempr_rock::SpatialObject>::updateData(sample);
+    }
+
+    Q_INVOKABLE void updateData(std::vector<sempr_rock::SpatialObject> const &sample)
+    {
         vizkit3d::Vizkit3DPlugin<sempr_rock::SpatialObject>::updateData(sample);
     }
 
@@ -36,6 +42,7 @@ namespace vizkit3d
         virtual osg::ref_ptr<osg::Node> createMainNode() override;
         virtual void updateMainNode(osg::Node* node) override;
         virtual void updateDataIntern(sempr_rock::SpatialObject const& sample) override;
+        virtual void updateDataIntern(std::vector<sempr_rock::SpatialObject> const& sample) override;
 
         /**
          * Create a marker to represent an object: 3 axis + text

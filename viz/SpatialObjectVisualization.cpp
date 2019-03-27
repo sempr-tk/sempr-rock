@@ -82,6 +82,19 @@ void SpatialObjectVisualization::updateDataIntern(sempr_rock::SpatialObject cons
         objectData_.erase(value.id);
 }
 
+void SpatialObjectVisualization::updateDataIntern(std::vector<sempr_rock::SpatialObject> const& values)
+{
+    std::cout << "got batch data" << std::endl;
+
+    for (auto& obj : values)
+    {
+        if (obj.mod == sempr_rock::Modification::ADD)
+            objectData_[obj.id] = obj;
+        else if (obj.mod == sempr_rock::Modification::REMOVE)
+            objectData_.erase(obj.id);
+    }
+}
+
 
 void SpatialObjectVisualization::setColor(const osg::Vec4d& color, osg::Geode* geode) const
 {
