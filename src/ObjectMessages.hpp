@@ -107,9 +107,16 @@ namespace sempr_rock {
     };
 
 
+    enum struct Modification
+    {
+        ADD = 0,
+        REMOVE = 1
+    };
+
     /**
         Used for visualization purposes, to be published by the sempr environment representation.
         Represents an object with an id, a type and a pose.
+        If mod == Modification::REMOVE only the id might be set
     */
     struct SpatialObject
     {
@@ -117,6 +124,7 @@ namespace sempr_rock {
         std::string type;
         base::Vector3d position;
         base::Quaterniond orientation;
+        Modification mod;
     };
 
 } /* sempr */
