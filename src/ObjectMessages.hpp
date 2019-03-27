@@ -107,7 +107,7 @@ namespace sempr_rock {
     };
 
 
-    enum struct Modification
+    enum Modification
     {
         ADD = 0,
         REMOVE = 1
