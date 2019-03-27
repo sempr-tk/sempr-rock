@@ -37,15 +37,37 @@ void SpatialObjectVisualization::updateMainNode ( osg::Node* node )
         auto& node = objectNodes_[e.first];
         if (!node) 
         {
+            // create a new node
             node = createVizNode(e.second);
+            node->setName(e.first);
         }
         else
         {
             // update nodes position
-            // //TODO
+            auto t = e.second.position;
+            auto r = e.second.orientation;
+            node->setPosition({t.x(), t.y(), t.z()});
+            node->setAttitude({r.x(), r.y(), r.z(), r.w()});
         }
 
         if (!group->containsNode(node)) group->addChild(node);
+    }
+
+    // remove nodes representing objects which are no longer present
+    std::vector<osg::ref_ptr<osg::Node>> toRemove;
+    size_t numChildren = group->getNumChildren();
+    for (size_t i = 0; i < numChildren; i++)
+    {
+        auto child = group->getChild(i);
+        if (objectData_.find(child->getName()) == objectData_.end())
+        {
+            toRemove.push_back(child);
+        }
+    }
+
+    for (auto node : toRemove)
+    {
+        group->removeChild(node);
     }
 }
 
@@ -53,7 +75,11 @@ void SpatialObjectVisualization::updateDataIntern(sempr_rock::SpatialObject cons
 {
     std::cout << "got new sample data" << std::endl;
     std::cout << "id: " << value.id << std::endl;
-    objectData_[value.id] = value;
+
+    if (value.mod == sempr_rock::Modification::ADD)
+        objectData_[value.id] = value;
+    else if (value.mod == sempr_rock::Modification::REMOVE)
+        objectData_.erase(value.id);
 }
 
 
@@ -112,7 +138,7 @@ osg::ref_ptr<osg::PositionAttitudeTransform> SpatialObjectVisualization::createV
 
     // text (id)
     osg::ref_ptr<osgText::Text> text = new osgText::Text();
-    text->setText(object.id);
+    text->setText(object.id + "\n(" + object.type + ")");
     text->setCharacterSize(0.1);
     text->setAxisAlignment(osgText::Text::AxisAlignment::SCREEN);
     text->setColor({1., 1., 1., 1.});

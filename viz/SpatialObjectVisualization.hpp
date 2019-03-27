@@ -49,9 +49,12 @@ namespace vizkit3d
         void setColor(const osg::Vec4d& color, osg::Geode* geode) const;
         
     private:
+        // The main node of this plugin. All objects are attached underneath it.
         osg::ref_ptr<osg::Node> groupNode_;
-        std::vector<osg::ref_ptr<osg::Node>> objectModels_;
+
+        // The "raw data" to visualize
         std::unordered_map<std::string, sempr_rock::SpatialObject> objectData_;
+        // directly lookup the node of an object
         std::unordered_map<std::string, osg::ref_ptr<osg::PositionAttitudeTransform>> objectNodes_;
 
         osg::ref_ptr<osgText::Font> textFont_;
