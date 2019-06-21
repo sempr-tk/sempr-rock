@@ -7,6 +7,7 @@
 #include <osgText/Text>
 #include <osg/Material>
 #include <osgText/Text3D>
+#include <osgDB/ReadFile>
 
 using namespace vizkit3d;
 
@@ -109,7 +110,7 @@ void SpatialObjectVisualization::setColor(const osg::Vec4d& color, osg::Geode* g
 }
 
 
-osg::ref_ptr<osg::PositionAttitudeTransform> SpatialObjectVisualization::createVizNode(const sempr_rock::SpatialObject& object) const
+osg::ref_ptr<osg::PositionAttitudeTransform> SpatialObjectVisualization::createVizNode(const sempr_rock::SpatialObject& object)
 {
     osg::ref_ptr<osg::PositionAttitudeTransform> group = new osg::PositionAttitudeTransform();
 
@@ -160,12 +161,62 @@ osg::ref_ptr<osg::PositionAttitudeTransform> SpatialObjectVisualization::createV
     textGeode->addDrawable(text);
     group->addChild(textGeode);
 
+    // mesh
+    osg::ref_ptr<osg::Node> meshNode = this->nodeForType(object.type);
+    if (meshNode)
+        group->addChild(meshNode);
+    else
+        std::cerr << "No mesh for object of type " << object.type << std::endl;
+
     return group;
+}
+
+osg::ref_ptr<osg::Node> SpatialObjectVisualization::nodeForType(const std::string& type)
+{
+    QString t = QString::fromStdString(type);
+    if (t.startsWith("http://trans.fit/")) t.remove(0, QString("http://trans.fit/").length());
+
+    osg::ref_ptr<osg::Node> node;
+    auto it = typeToMesh_.find(t.toStdString());
+    if (it != typeToMesh_.end())
+    {
+        node = it->second;
+    }
+    else
+    {
+        std::cout << "Try loading mesh: " << t.toStdString() << ".stl from folder: " << meshFolder_ << std::endl;
+        osg::ref_ptr<osgDB::ReaderWriter::Options> options = new osgDB::ReaderWriter::Options;
+        options->setDatabasePath(meshFolder_);
+        options->setObjectCacheHint(osgDB::ReaderWriter::Options::CACHE_NONE);
+
+        node = osgDB::readNodeFile(t.toStdString() + ".stl", options);
+        if (!node)
+        {
+            std::cerr << "Couldn't read " << t.toStdString() << ".stl" << std::endl;
+        }
+        else
+        {
+            typeToMesh_[t.toStdString()] = node;
+        }
+    }
+
+    return node;
 }
 
 void SpatialObjectVisualization::clear()
 {
     objectData_.clear();
+}
+
+
+void SpatialObjectVisualization::setMeshFolder(QString folder)
+{
+    meshFolder_ = folder.toStdString();
+}
+
+QString SpatialObjectVisualization::getMeshFolder() const
+{
+    return QString::fromStdString(meshFolder_);
 }
 
 

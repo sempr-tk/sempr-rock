@@ -11,6 +11,8 @@
 #include <iostream>
 #include <vector>
 
+#include <QString>
+
 namespace vizkit3d
 {
     class SpatialObjectVisualization
@@ -19,6 +21,14 @@ namespace vizkit3d
         , boost::noncopyable
     {
     Q_OBJECT
+
+    /**
+     * The folder in which to look for a mesh matching the type of the object
+     * to visualize. If the object type is "http://trans.fit/foo", and you have
+     * a mesh in /some/folder/foo.stl then set the mesh_folder to /some/folder.
+     */
+    Q_PROPERTY(QString mesh_folder READ getMeshFolder WRITE setMeshFolder)
+
     public:
         SpatialObjectVisualization();
         ~SpatialObjectVisualization();
@@ -38,6 +48,9 @@ namespace vizkit3d
      */
     Q_INVOKABLE void clear();
 
+    QString getMeshFolder() const;
+    void setMeshFolder(QString folder);
+
     protected:
         virtual osg::ref_ptr<osg::Node> createMainNode() override;
         virtual void updateMainNode(osg::Node* node) override;
@@ -48,12 +61,17 @@ namespace vizkit3d
          * Create a marker to represent an object: 3 axis + text
          * x red, y green, z blue
          */
-        osg::ref_ptr<osg::PositionAttitudeTransform> createVizNode(const sempr_rock::SpatialObject& object) const;
+        osg::ref_ptr<osg::PositionAttitudeTransform> createVizNode(const sempr_rock::SpatialObject& object);
 
         /**
          * Helper to set the color of a geode
          */
         void setColor(const osg::Vec4d& color, osg::Geode* geode) const;
+
+        /**
+         * Helper to get a mesh-geode for a given type name
+         */
+        osg::ref_ptr<osg::Node> nodeForType(const std::string& type);
         
     private:
         // The main node of this plugin. All objects are attached underneath it.
@@ -66,6 +84,12 @@ namespace vizkit3d
 
         osg::ref_ptr<osgText::Font> textFont_;
         osg::ref_ptr<osgText::Style> textStyle_;
+
+        // map types to nodes
+        std::unordered_map<std::string, osg::ref_ptr<osg::Node>> typeToMesh_;
+
+
+        std::string meshFolder_;
 
     };
 }
